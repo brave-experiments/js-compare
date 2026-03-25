@@ -1,0 +1,14 @@
+[project]
+name = "js-compare"
+version = "0.0.1"
+dependencies = [
+    "networkx",
+    "numpy",
+    "scipy"
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pylint"
+]
