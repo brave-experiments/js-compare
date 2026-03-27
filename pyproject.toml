@@ -4,7 +4,7 @@ version = "0.0.1"
 dependencies = [
     "networkx",
     "numpy",
-    "scipy"
+    "scipy",
 ]
 
 [project.optional-dependencies]

@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 from shutil import rmtree
-from subprocess import DEVNULL, run
+from subprocess import CalledProcessError, DEVNULL, run
+import sys
 from typing import TYPE_CHECKING
 
 from js_compare.consts import WORKSPACE_PATH
+from js_compare.types import AstNodeType
 
 if TYPE_CHECKING:
-    from typing import Optional
+    from typing import Optional, TextIO
 
 TEMPLATES_DIR: Path = WORKSPACE_PATH / "templates"
 JS_SCRIPT = Path("js_to_graphml.js")
@@ -51,7 +53,7 @@ def check_tool(tool_dir: Path) -> bool:
         return False
     return True
 
-def run_tool(tool_dir: Path, code: Path,
+def run_tool(tool_dir: Path, code: Path, node_types: list[AstNodeType],
              output: Optional[Path]=None) -> Optional[str]:
     if not tool_dir.is_dir():
         msg = f"Unable to run tool at {tool_dir}. No directory exists."
@@ -66,15 +68,19 @@ def run_tool(tool_dir: Path, code: Path,
         msg = f"Unable to parse JS code at {code}. No file exists."
         raise ValueError(msg)
 
-    cmd: list[str | Path] = ["node", script_path, code]
+    cmd: list[str | Path] = ["node", script_path, code, *node_types]
     if output is None:
         capture_output = True
         stdout = None
     else:
         capture_output = False
         stdout = output.open("w")
-    rs = run(cmd, cwd=tool_dir, capture_output=capture_output, stdout=stdout,
-             encoding="utf8", check=True)
+    try:
+        rs = run(cmd, cwd=tool_dir, capture_output=capture_output, stdout=stdout,
+                encoding="utf8", check=True)
+    except CalledProcessError as err:
+        sys.stderr.write(err.stderr)
+        raise err
     if capture_output:
         return rs.stdout
     return None
