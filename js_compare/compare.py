@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from shutil import copyfile
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
@@ -64,9 +63,6 @@ def compare_code(tool_dir: Path, code1: Path, code2: Path,
         assert graphml_str2
         file2.write(graphml_str2)
         file2.close()
-
-        copyfile(file1.name, "/tmp/graph1.graphml")
-        copyfile(file2.name, "/tmp/graph2.graphml")
 
         g1 = read_graphml(Path(file1.name))
         g2 = read_graphml(Path(file2.name))

@@ -214,7 +214,7 @@ const idForNode = (node, mode) => {
 
 const idForParentEdge = (node) => {
   const nodeId = idForNode(node, modes.throwIfNotFound);
-  return "e" + nodeId.slice("1");
+  return "e" + nodeId.slice(1);
 };
 
 traverse(ast, {

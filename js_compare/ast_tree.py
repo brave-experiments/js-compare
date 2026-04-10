@@ -27,11 +27,6 @@ class NodeAttrs:
     weight: int
 
 def get_attrs_for_node(graph: DiGraph, node: _Node) -> NodeAttrs:
-    if node not in graph.nodes:
-        print({
-            "node": node,
-            "attrs": graph.nodes[node],
-        })
     assert node in graph.nodes
     raw_attrs = graph.nodes[node]
     label = raw_attrs[ATTR_LABEL]
@@ -127,7 +122,6 @@ class ASTTree:
     def nodes_sorted(self, key: GraphAttr,
                      reverse: bool=False) -> list[NodeAttrs]:
         nodes = list(self.nodes_with_attr(key))
-        # return sorted(nodes, key=lambda x: x.weight, reverse=reverse)
         return sorted(nodes, key=attrgetter(key), reverse=reverse)
 
     def contains(self, digest: Digest) -> list[NodeAttrs]:
