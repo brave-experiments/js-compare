@@ -27,8 +27,10 @@ const root = create({ encoding: "UTF-8", version: "1.0" }).ele(
   graphmlNS,
 );
 
+const labelKey = "d1";
+
 root.ele("key", {
-  id: "label",
+  id: labelKey,
   for: "node",
   "attr.name": "label",
   "attr.type": "string",
@@ -195,10 +197,11 @@ traverse(ast, {
       return;
     }
 
-    const nodeId = `${nodeType}_${path.node.start}`;
+    const nodeStart = path.node.start;
+    const nodeId = `${nodeType}_${nodeStart}`;
 
     const node = graph.ele("node", { id: nodeId });
-    node.ele("data", { key: "label" }).txt(nodeType);
+    node.ele("data", { key: labelKey }).txt(nodeType);
 
     if (!path.parentPath) {
       return;
@@ -215,6 +218,9 @@ traverse(ast, {
     const parentType = parentPath.node.type;
     const parentStart = parentPath.node.start;
     const parentId = `${parentType}_${parentStart}`;
+    if (parentStart === nodeStart) {
+      return;
+    }
     graph.ele("edge", {
       id: `e_${parentId}_${nodeId}`,
       source: parentId,

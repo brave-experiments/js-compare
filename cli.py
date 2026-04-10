@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from js_compare.code import compare
+from js_compare.compare import compare_code
 from js_compare.consts import GRAPHML_TOOL_PATH
 from js_compare.filetype import FileType
 from js_compare.types import ast_node_types
@@ -30,11 +30,6 @@ parser = argparse.ArgumentParser(
     prog="js-compare",
     description="Compares JavaScript code units, based on their AST",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-f", "--fuzzy",
-    action="store_true",
-    default=False,
-    help="Compute the edit distance between both ASTs using an approximate, "
-         "faster approach than edit distance.")
 parser.add_argument("-o", "--output",
     default="-",
     help="Path to write comparison results to. Use '-' to write results to "
@@ -77,17 +72,12 @@ elif "all" in args.types:
 else:
     NODE_TYPES = args.types
 
-EXACT = not args.fuzzy
-result = compare(args.workspace, args.file1, args.file2, NODE_TYPES, EXACT)
+result = compare_code(args.workspace, args.file1, args.file2, NODE_TYPES)
 data = {
-    "code1": {
-        "edges": result.code1.edges,
-        "nodes": result.code1.nodes,
-    },
-    "code2": {
-        "edges": result.code2.edges,
-        "nodes": result.code2.nodes,
-    },
-    "distance": result.distance,
+    "code1": result.graph1,
+    "code2": result.graph2,
+    "overlap": result.overlap,
+    "normalized": result.normalized,
 }
 json.dump(data, args.output)
+args.output.write("\n")
