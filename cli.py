@@ -47,12 +47,13 @@ parser.add_argument("-w", "--workspace",
     default=GRAPHML_TOOL_PATH,
     help="Path to a directory that exists and be written to, or does not "
          "exist and can be created. This directory will be used to create a "
-         "child program to convert JavaScript code to GraphML.",)
+         "child program to convert JavaScript code to GraphML.",
+    type=Path)
 parser.add_argument("file1",
     help="Path to first JavaScript code unit to compare.",
     type=Path)
 parser.add_argument("file2",
-    help="Path to first JavaScript code unit to compare.",
+    help="Path to second JavaScript code unit to compare.",
     type=Path)
 
 args = parser.parse_args()
@@ -72,7 +73,9 @@ elif "all" in args.types:
 else:
     NODE_TYPES = args.types
 
-result = compare_code(args.workspace, args.file1, args.file2, NODE_TYPES)
+WORKSPACE_PATH = args.workspace.resolve()
+
+result = compare_code(WORKSPACE_PATH, args.file1, args.file2, NODE_TYPES)
 data = {
     "code1": result.graph1,
     "code2": result.graph2,
