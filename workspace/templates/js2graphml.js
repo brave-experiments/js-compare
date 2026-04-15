@@ -171,9 +171,7 @@ const astNodeTypes = {
 };
 
 const nodeCategoriesToInclude =
-  process.argv.length > 3
-    ? process.argv.slice(3)
-    : Object.keys(astNodeTypes);
+  process.argv.length > 3 ? process.argv.slice(3) : Object.keys(astNodeTypes);
 
 let nodeTypesToInclude = new Set();
 for (const aCategory of nodeCategoriesToInclude) {
@@ -188,18 +186,18 @@ const nodeMapping = Object.create(null);
 let nodeCount = 0;
 const modes = {
   throwIfFound: "if found",
-  throwIfNotFound: "if not found"
+  throwIfNotFound: "if not found",
 };
 const idForNode = (node, mode) => {
   const key = `${node.type}:${node.start}:${node.end}`;
   const currentValue = nodeMapping[key];
 
   if (currentValue === undefined && mode === modes.throwIfNotFound) {
-    throw new Error('Node id DOES NOT EXIST.\n' + JSON.stringify(node));
+    throw new Error("Node id DOES NOT EXIST.\n" + JSON.stringify(node));
   }
 
-  if (currentValue !== undefined && mode === mode === modes.throwIfFound) {
-    throw new Error('Node id EXISTS.\n' + JSON.stringify(node));
+  if (currentValue !== undefined && mode === modes.throwIfFound) {
+    throw new Error("Node id EXISTS.\n" + JSON.stringify(node));
   }
 
   if (currentValue !== undefined) {
