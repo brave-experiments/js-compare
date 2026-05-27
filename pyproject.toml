@@ -1,7 +1,7 @@
 [project]
 name = "js-compare"
 readme = "README.txt"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
     "networkx",
     "numpy",

@@ -52,6 +52,7 @@ def get_attrs_for_node(graph: DiGraph, node: _Node) -> NodeAttrs:
 
 def remove_node_for_graph(graph: DiGraph, node: _Node,
                           update: bool=False) -> int:
+    num_initial_nodes = len(graph)
     num_nodes_removed = 0
     child_nodes = list(graph.neighbors(node))
     for child_node in child_nodes:
@@ -70,6 +71,11 @@ def remove_node_for_graph(graph: DiGraph, node: _Node,
         del graph[parent_node][ATTR_WEIGHT]
         get_attrs_for_node(graph, parent_node)
         parent_nodes = graph.predecessors(parent_node)
+
+    # Check that the number of nodes in the graph after we do the removal
+    # matches the number of nodes that were in the graph at the start,
+    # less the number of removed nodes.
+    assert len(graph) == num_initial_nodes - num_nodes_removed
     return num_nodes_removed
 
 def nodes_with_attr(graph: DiGraph, key: GraphAttr,
@@ -77,6 +83,15 @@ def nodes_with_attr(graph: DiGraph, key: GraphAttr,
     if not value:
         return (n for n, attr in graph.nodes(data=key))
     return (n for n, attr in graph.nodes(data=True) if attr.get(key) == value)
+
+def _subtree_as_set(graph: DiGraph, node: _Node) -> set[_Node]:
+    subtree_set: set[_Node] = set()
+    subtree_set.add(node)
+    for child_node in graph.neighbors(node):
+        child_subgraph_set = _subtree_as_set(graph, child_node)
+        assert subtree_set.isdisjoint(child_subgraph_set)
+        subtree_set |= child_subgraph_set
+    return subtree_set
 
 
 class ASTTree:
@@ -131,11 +146,57 @@ class ASTTree:
         """Return NodeAttrs that are roots of subtrees that appear in
         the current instance, and also the remote instance (uniquely)."""
         other_tree = tree.copy()
+        if __debug__:
+            prev_observed_weight: int | None = None
+            prev_tree_size = other_tree.num_nodes()
+
+        all_local_nodes: set[_Node] = set(list(self.graph.nodes))
+        unmatched_nodes: set[_Node] = set(all_local_nodes)
+        matched_nodes: set[_Node] = set()
+
         for node_attrs in self.nodes_sorted(ATTR_WEIGHT, True):
+            if node_attrs.node in matched_nodes:
+                continue
+
+            if __debug__:
+                # Check to make sure we're actually looking at nodes
+                # ordered largest to smallest subtrees.
+                if prev_observed_weight is None:
+                    prev_observed_weight = node_attrs.weight
+                else:
+                    assert prev_observed_weight >= node_attrs.weight
+                    prev_observed_weight = node_attrs.weight
+
             matches = other_tree.contains(node_attrs.digest)
             if len(matches) == 0:
                 continue
+
             removed_node_attrs: NodeAttrs = matches[0]
             num_removed_nodes = other_tree.remove_node(removed_node_attrs.node)
             assert num_removed_nodes == removed_node_attrs.weight
+
+            matched_local_subtree = _subtree_as_set(self.graph, node_attrs.node)
+            assert len(matched_local_subtree) == num_removed_nodes
+            matched_nodes |= matched_local_subtree
+            unmatched_nodes = unmatched_nodes - matched_local_subtree
+
+            # if __debug__:
+                # Check to make sure we're never revisiting the same nodes
+                # in the local graph (i.e., we're not double counting
+                # any nodes in the local graph as overlapping with the
+                # remote graph).
+
+                # local_subtree = _subtree_as_set(self.graph, node_attrs.node)
+                # assert local_subtree.isdisjoint(matched_nodes)
+                # matched_nodes |= local_subtree
+
+                # Also check to make sure that the new size of the graph is
+                # equal to i. the size of the graph before we removed the
+                # common subtree (`prev_tree_size``), less ii. the
+                # number of nodes in the common subtree we just removed.
+
+                # cur_tree_size = other_tree.num_nodes()
+                # assert cur_tree_size == prev_tree_size - num_removed_nodes
+                # prev_tree_size = cur_tree_size
+
             yield removed_node_attrs

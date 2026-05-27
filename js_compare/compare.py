@@ -38,6 +38,7 @@ def compare_graphs(graph1: networkx, graph2: networkx) -> Comparison:
     overlap_nodes = 0
     if __debug__:
         observed_subtree_roots: set[_Node] = set()
+
     for common_subtree_root in tree1.common_subtree_roots(tree2):
         if __debug__:
             assert common_subtree_root.node not in observed_subtree_roots
@@ -45,6 +46,10 @@ def compare_graphs(graph1: networkx, graph2: networkx) -> Comparison:
         overlap_nodes += common_subtree_root.weight
 
     normalized = overlap_nodes / float(tree1.num_nodes())
+    # assert 0 <= normalized <= 1
+    assert normalized >= 0
+    assert normalized <= 1
+
     comparison = Comparison(len(graph1), len(graph2), overlap_nodes, normalized)
     return comparison
 
