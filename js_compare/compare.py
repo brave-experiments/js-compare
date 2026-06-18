@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 
     from js_compare.types import AstNodeType
 
+type Graph = networkx
+
 @dataclass
 class Comparison:
     graph1: int
@@ -31,7 +33,7 @@ class Comparison:
 def make_temp_file() -> IO[Any]:
     return NamedTemporaryFile(mode="w+", delete_on_close=False, encoding="utf8")
 
-def compare_graphs(graph1: networkx, graph2: networkx) -> Comparison:
+def compare_graphs(graph1: Graph, graph2: Graph, minimum: int=1) -> Comparison:
     tree1 = ASTTree(graph1)
     tree2 = ASTTree(graph2)
 
@@ -39,7 +41,7 @@ def compare_graphs(graph1: networkx, graph2: networkx) -> Comparison:
     if __debug__:
         observed_subtree_roots: set[_Node] = set()
 
-    for common_subtree_root in tree1.common_subtree_roots(tree2):
+    for common_subtree_root in tree1.common_subtree_roots(tree2, minimum):
         if __debug__:
             assert common_subtree_root.node not in observed_subtree_roots
             observed_subtree_roots.add(common_subtree_root.node)

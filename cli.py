@@ -35,6 +35,11 @@ parser.add_argument("-o", "--output",
     help="Path to write comparison results to. Use '-' to write results to "
          "STDOUT.",
     type=FileType("w", encoding="utf-8"))
+parser.add_argument("--threshold",
+    default=1,
+    help="The minimum weight for a subtree before we consider it a possible "
+         "match across code units.",
+    type=int)
 parser.add_argument("-t", "--types",
     choices=ast_options,
     default=["all"],

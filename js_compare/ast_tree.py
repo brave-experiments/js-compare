@@ -9,7 +9,8 @@ import sys
 from networkx import DiGraph, dag_longest_path
 
 if TYPE_CHECKING:
-    from typing import Final, Generator, Literal, Optional
+    from collections.abc import Generator
+    from typing import Final, Literal, Optional
 
     from networkx.classes.graph import _Node
 
@@ -142,7 +143,7 @@ class ASTTree:
     def contains(self, digest: Digest) -> list[NodeAttrs]:
         return list(self.nodes_with_attr(ATTR_DIGEST, digest))
 
-    def common_subtree_roots(self, tree: ASTTree) -> Generator[NodeAttrs]:
+    def common_subtree_roots(self, tree: ASTTree,  minimum: int) -> Generator[NodeAttrs]:
         """Return NodeAttrs that are roots of subtrees that appear in
         the current instance, and also the remote instance (uniquely)."""
         other_tree = tree.copy()
@@ -150,11 +151,16 @@ class ASTTree:
             prev_observed_weight: int | None = None
             prev_tree_size = other_tree.num_nodes()
 
-        all_local_nodes: set[_Node] = set(list(self.graph.nodes))
-        unmatched_nodes: set[_Node] = set(all_local_nodes)
+        unmatched_nodes: set[_Node] = set(list(self.graph.nodes))
         matched_nodes: set[_Node] = set()
 
         for node_attrs in self.nodes_sorted(ATTR_WEIGHT, True):
+            if node_attrs.weight < minimum:
+                # Since nodes are ordered by weight, the moment we hit the first
+                # node (i.e., subtree root) with a weight below the given
+                # threshold, we can stop looking.
+                break
+
             if node_attrs.node in matched_nodes:
                 continue
 
@@ -180,23 +186,21 @@ class ASTTree:
             matched_nodes |= matched_local_subtree
             unmatched_nodes = unmatched_nodes - matched_local_subtree
 
-            # if __debug__:
+            if __debug__:
                 # Check to make sure we're never revisiting the same nodes
                 # in the local graph (i.e., we're not double counting
                 # any nodes in the local graph as overlapping with the
                 # remote graph).
-
-                # local_subtree = _subtree_as_set(self.graph, node_attrs.node)
-                # assert local_subtree.isdisjoint(matched_nodes)
-                # matched_nodes |= local_subtree
+                local_subtree = _subtree_as_set(self.graph, node_attrs.node)
+                assert local_subtree.isdisjoint(matched_nodes)
+                matched_nodes |= local_subtree
 
                 # Also check to make sure that the new size of the graph is
                 # equal to i. the size of the graph before we removed the
                 # common subtree (`prev_tree_size``), less ii. the
                 # number of nodes in the common subtree we just removed.
-
-                # cur_tree_size = other_tree.num_nodes()
-                # assert cur_tree_size == prev_tree_size - num_removed_nodes
-                # prev_tree_size = cur_tree_size
+                cur_tree_size = other_tree.num_nodes()
+                assert cur_tree_size == prev_tree_size - num_removed_nodes
+                prev_tree_size = cur_tree_size
 
             yield removed_node_attrs
