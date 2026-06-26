@@ -8,10 +8,10 @@ import argparse
 import sys
 import typing
 
-MAGIC_VALUES = {
-    "IOFLAG_STDIO": "-",
-    "IOFLAG_READ": "r",
-    "IOFLAG_BINARY": "b"
+IOFLAGS = {
+    "STDIO": "-",
+    "READ": "r",
+    "BINARY": "b"
 }
 
 class FileType:
@@ -35,7 +35,7 @@ class FileType:
 
     def __init__(
         self,
-        mode: str = MAGIC_VALUES["IOFLAG_READ"],
+        mode: str = IOFLAGS["READ"],
         bufsize: int = -1,
         encoding: str | None = None,
         errors: str | None = None,
@@ -47,9 +47,9 @@ class FileType:
 
     def __call__(self, string: str) -> typing.IO:  # type: ignore[type-arg]
         # the special argument "-" means sys.std{in,out}
-        if string == MAGIC_VALUES["IOFLAG_STDIO"]:
-            binary_flag = MAGIC_VALUES["IOFLAG_BINARY"]
-            if MAGIC_VALUES["IOFLAG_READ"] in self._mode:
+        if string == IOFLAGS["STDIO"]:
+            binary_flag = IOFLAGS["BINARY"]
+            if IOFLAGS["READ"] in self._mode:
                 return sys.stdin.buffer if binary_flag in self._mode else sys.stdin
             if any(c in self._mode for c in "wax"):
                 return sys.stdout.buffer if binary_flag in self._mode else sys.stdout
