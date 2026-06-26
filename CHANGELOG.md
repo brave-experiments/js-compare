@@ -1,6 +1,11 @@
 JS Compare
 ===
 
+0.0.7
+---
+
+Address outstanding pylint complaints.
+
 0.0.6
 ---
 

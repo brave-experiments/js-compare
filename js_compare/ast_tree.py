@@ -66,6 +66,7 @@ def remove_node_for_graph(graph: DiGraph, node: _Node,
     if not update:
         return num_nodes_removed
 
+    # pylint: disable=while-used
     while len(parent_nodes) == 1:
         parent_node = parent_nodes[0]
         del graph[parent_node][ATTR_DIGEST]

@@ -20,9 +20,13 @@ loose_options: list[AstNodeType] = [
     "Declarations",
     "Statements",
 ]
+AST_FLAGS = {
+    "ALL": "all",
+    "LOOSE": "loose" 
+}
 ast_options = [
-    "all",
-    "loose",
+    AST_FLAGS["ALL"],
+    AST_FLAGS["LOOSE"],
     *ast_node_types
 ]
 
@@ -42,7 +46,7 @@ parser.add_argument("--threshold",
     type=int)
 parser.add_argument("-t", "--types",
     choices=ast_options,
-    default=["all"],
+    default=AST_FLAGS["ALL"],
     help="Which AST nodes to include in the code graph when comparing code "
          "units. You can also use the special cases 'all' to "
          "include all AST nodes, or 'loose', to include just the following "
@@ -63,13 +67,13 @@ parser.add_argument("file2",
 
 args = parser.parse_args()
 
-if "loose" in args.types:
+if AST_FLAGS["LOOSE"] in args.types:
     if len(args.types) > 1:
         raise argparse.ArgumentTypeError(
             "Invalid arguments for --type: Cannot use 'loose' preset type "
             "along with other types.")
     NODE_TYPES = loose_options
-elif "all" in args.types:
+elif AST_FLAGS["ALL"] in args.types:
     if len(args.types) > 1:
         raise argparse.ArgumentTypeError(
             "Invalid arguments for --type: Cannot use 'all' preset type "
