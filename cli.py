@@ -80,7 +80,12 @@ else:
 
 WORKSPACE_PATH = args.workspace.resolve()
 
-result = compare_code(WORKSPACE_PATH, args.file1, args.file2, NODE_TYPES)
+result = compare_code(
+    WORKSPACE_PATH,
+    args.file1,
+    args.file2,
+    NODE_TYPES,
+    args.threshold)
 data = {
     "code1": result.graph1,
     "code2": result.graph2,

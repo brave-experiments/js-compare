@@ -1,5 +1,9 @@
-usage: js-compare [-h] [-o OUTPUT]
-                  [-t {all,loose,Identifier,PrivateName,Literals,Programs...}]
+usage: js-compare [-h] [-o OUTPUT] [--threshold THRESHOLD]
+                  [-t {all,loose,Identifier,PrivateName,Literals,Programs,Functi
+ons,Statements,Declarations,Misc,Expressions,Template Literals,Patterns,Classes,
+Modules} [{all,loose,Identifier,PrivateName,Literals,Programs,Functions,Statemen
+ts,Declarations,Misc,Expressions,Template Literals,Patterns,Classes,Modules} ...
+]]
                   [-w WORKSPACE]
                   file1 file2
 
@@ -13,10 +17,13 @@ options:
   -h, --help            show this help message and exit
   -o, --output OUTPUT   Path to write comparison results to. Use '-' to write
                         results to STDOUT. (default: -)
+  --threshold THRESHOLD
+                        The minimum weight for a subtree before we consider it
+                        a possible match across code units. (default: 1)
   -t, --types {all,loose,Identifier,PrivateName,Literals,Programs,Functions,Stat
 ements,Declarations,Misc,Expressions,Template Literals,Patterns,Classes,Modules}
- [{all,loose,Identifier,PrivateName,Literals,Programs,Functions,Statements,
- Declarations,Misc,Expressions,Template Literals,Patterns,Classes,Modules} ...]
+ [{all,loose,Identifier,PrivateName,Literals,Programs,Functions,Statements,Decla
+rations,Misc,Expressions,Template Literals,Patterns,Classes,Modules} ...]
                         Which AST nodes to include in the code graph when
                         comparing code units. You can also use the special
                         cases 'all' to include all AST nodes, or 'loose', to

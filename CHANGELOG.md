@@ -1,6 +1,12 @@
 JS Compare
 ===
 
+0.0.6
+---
+
+Fix issue in prior release where the `--threshold` argument was not correctly
+used when comparing code.
+
 0.0.5
 ---
 

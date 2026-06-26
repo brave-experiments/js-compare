@@ -56,7 +56,7 @@ def compare_graphs(graph1: Graph, graph2: Graph, minimum: int=1) -> Comparison:
     return comparison
 
 def compare_code(tool_dir: Path, code1: Path, code2: Path,
-                 node_types: list[AstNodeType]) -> Comparison:
+                 node_types: list[AstNodeType], minimum: int=1) -> Comparison:
     if not check_tool(tool_dir):
         install_tool(tool_dir)
 
@@ -73,4 +73,4 @@ def compare_code(tool_dir: Path, code1: Path, code2: Path,
 
         g1 = read_graphml(Path(file1.name))
         g2 = read_graphml(Path(file2.name))
-        return compare_graphs(g1, g2)
+        return compare_graphs(g1, g2, minimum)
